@@ -1,0 +1,28 @@
+{
+    "name": "concept-labs/expression",
+    "description": "(C)oncept-Labs Expression",
+    "keywords": ["php","expression"],
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "mtr",
+            "email": "info.concept.labs@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.4",
+        "concept-labs/config": "^1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Concept\\Expression\\": "src/"
+        }
+    },
+    "require-dev": {
+    },
+    "autoload-dev": {
+        "psr-4": {
+        }
+    }
+
+}
