@@ -5,13 +5,12 @@
     "license": "Apache-2.0",
     "authors": [
         {
-            "name": "mtr",
-            "email": "info.concept.labs@gmail.com"
+            "name": "Victor Galitsky",
+            "email": "concept.galitsky@gmail.com"
         }
     ],
     "require": {
-        "php": ">=7.4",
-        "concept-labs/config": "^1"
+        "php": ">=7.4"
     },
     "autoload": {
         "psr-4": {
@@ -22,6 +21,11 @@
     },
     "autoload-dev": {
         "psr-4": {
+        }
+    },
+    "extra": {
+        "concept": {
+            "include": "concept.json"
         }
     }
 

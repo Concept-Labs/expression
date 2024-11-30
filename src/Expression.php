@@ -1,44 +1,216 @@
 <?php
 namespace Concept\Expression;
 
-use Concept\Config\Traits\ConfigurableTrait;
-use Concept\Prototype\PrototypableTrait;
+use Concept\Di\InjectableInterface;
+use Concept\Di\InjectableTrait;
+use Concept\Expression\Decorator\DecoratorManagerInterface;
+use Traversable;
 
-class Expression implements ExpressionInterface
+class Expression implements ExpressionInterface, InjectableInterface
 {
-    use PrototypableTrait;
-    use ConfigurableTrait;
+    use InjectableTrait;
 
+    private ?DecoratorManagerInterface $decoratorManager = null;
+    private ?DecoratorManagerInterface $decoratorManagerPrototype = null;
+
+    /**
+     * The expressions
+     * 
+     * @var string[]|\Stringable[]|ExpressionInterface[]
+     */
     private array $expressions = [];
-    private array $decorators = [];
+
+    /**
+     * The context
+     * 
+     * @var string[]
+     */ 
     private array $context = [];
 
-    public function withExpression($expression): ExpressionInterface
+    public function __construct(DecoratorManagerInterface $decoratorManager)
+    {
+        $this->decoratorManagerPrototype = $decoratorManager;
+
+        $this->init();
+    }
+
+    /**
+     * Get the decorator manager
+     * 
+     * @return DecoratorManagerInterface
+     */
+    protected function getDecoratorManager(): DecoratorManagerInterface
+    {
+        if ($this->decoratorManager === null) {
+            $this->decoratorManager = clone $this->decoratorManagerPrototype;
+        }
+
+        return $this->decoratorManager;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function __toString(): string
+    {
+        try {
+            return $this->interpolate(
+                $this->getDecoratorManager()->applyDecorations($this)
+            );
+        } catch (\Throwable $e) {
+            return sprintf('[Error: %s]', $e->getMessage());
+        }
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public function getIterator(): Traversable
+    {
+        foreach ($this->expressions as $expression) {
+            yield $expression;
+        }
+    }
+
+    /**
+     * Initialize the expression
+     * Set the default decorators
+     * 
+     * @return self
+     */
+    protected function init(): self
+    {
+        return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function count(): int
+    {
+        return count($this->expressions);
+    }
+
+    /**
+     * Reset the expression
+     * 
+     * @return self
+     */
+    public function reset(): self
+    {
+        $this->expressions = [];
+
+        return $this->init();
+    }    
+
+    /**
+     * {@inheritDoc}
+     */
+    public function withExpression(...$expression): ExpressionInterface
     {
         $clone = clone $this;
-        $clone->expressions[] = $expression;
+        $clone->expressions = [];
+        $clone->push(...$expression);
 
         return $clone;
     }
 
-    public function withDecorator($decorator): ExpressionInterface
+    /**
+     * {@inheritDoc}
+     */
+    public function push(...$expressions): self
     {
-        $clone = clone $this;
-        $clone->decorators[] = $decorator;
+        foreach($expressions as $item) {
+            if (empty($item)) {
+                continue;
+            }
+            if (!is_scalar($item) && !$item instanceof ExpressionInterface) {
+                throw new \InvalidArgumentException(sprintf(
+                    'Invalid expression of type %s. Must be scalar, Stringable, or ExpressionInterface.',
+                    is_object($item) ? get_class($item) : gettype($item)
+                ));
+            }
+            $this->expressions[] = $item;
+            //$this->expressions[] = (string)$item; //convert now?
+        }
 
-        return $clone;
+        return $this;
     }
 
-    public function withSeparator(string $separator): ExpressionInterface
+    /**
+     * {@inheritDoc}
+     */
+    public function unshift(...$expressions): self
     {
-        $clone = clone $this;
-        $clone->decorators[] = function ($expression) use ($separator) {
-            return implode($separator, $expression);
-        };
+        array_unshift($this->expressions, ...$expressions);
 
-        return $clone;
+        return $this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public function decorate(callable ...$decorator): self
+    {
+        $this->getDecoratorManager()->addDecorator(...$decorator);
+
+        return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function decorateJoin(callable $decorator): ExpressionInterface
+    {
+        $this->getDecoratorManager()->setJoinDecorator($decorator);
+
+        return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function decorateItem(callable ...$decorator): self
+    {
+        $this->getDecoratorManager()->addItemDecorator(...$decorator);
+
+        return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function join($separator): self
+    {
+        $this->getDecoratorManager()->join($separator);
+
+        return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function wrap($left, $right = null): self
+    {
+        $this->getDecoratorManager()->wrap($left, $right);
+
+        return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function wrapItem($left, $right = null): self
+    {
+        $this->getDecoratorManager()->wrapItem($left, $right);
+
+        return $this;
+    }
+    
+
+    /**
+     * {@inheritDoc}
+     */
     public function withContext(array $context): ExpressionInterface
     {
         $clone = clone $this;
@@ -47,39 +219,46 @@ class Expression implements ExpressionInterface
         return $clone;
     }
 
-    public function __toString()
+    /**
+     * Interpolate the expression with the context
+     * 
+     * @param string $expression
+     * 
+     * @return string
+     */
+    protected function interpolate(string $expression, array $defaults = []): string
     {
-        return $this->evaluate();
-    }
-
-    public function evaluate(array $context = []): string
-    {
-        $expression = implode(' ', $this->expressions);
-        
-        return $this->decorate($expression);
-    }
-
-    protected function decorate($expression)
-    {
-        foreach ($this->getDecorators() as $decorator) {
-            $expression = $decorator->decorate($expression);
+        $replacements = [];
+        $context = array_merge($defaults, $this->getContext());
+        foreach ($context as $key => $value) {
+            if (is_scalar($value)) {
+                $replacements["{{$key}}"] = $value;
+            }
         }
-
-        return $expression;
-    }
     
-    protected function getExpressions(): array
+        return strtr($expression, $replacements);
+    } 
+
+   
+    /**
+     * Get the expressions
+     * 
+     * @return string[]|\Stringable[]|ExpressionInterface[]
+     */
+    public function getExpressions(): array
     {
         return $this->expressions;
     }
 
-    protected function getDecorators(): array
-    {
-        return $this->decorators;
-    }
-
+    /**
+     * Get the context
+     * 
+     * @return string[]
+     */
     protected function getContext(): array
     {
         return $this->context;
     }
+
+    
 }

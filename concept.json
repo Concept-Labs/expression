@@ -1,0 +1,17 @@
+{
+    "di": {
+        "package": {
+            "concept-labs/expression": {
+                "preference": {
+                    "Concept\\Expression\\ExpressionInterface": {
+                        "class": "Concept\\Expression\\Expression"
+                    },
+                    "Concept\\Expression\\Decorator\\DecoratorManagerInterface": {
+                        "class": "Concept\\Expression\\Decorator\\DecoratorManager"
+                    }
+                }
+            }
+        }
+        
+    }
+}
