@@ -1,24 +1,19 @@
 <?php
 namespace Concept\Expression;
 
-use Concept\Di\InjectableInterface;
-use Concept\Di\InjectableTrait;
+use Concept\DBAL\Exception\InvalidArgumentException;
 use Concept\Expression\Decorator\DecoratorManagerInterface;
 use Traversable;
 
-class Expression implements ExpressionInterface, InjectableInterface
+class Expression implements ExpressionInterface
 {
-    use InjectableTrait;
-
-    private ?DecoratorManagerInterface $decoratorManager = null;
-    private ?DecoratorManagerInterface $decoratorManagerPrototype = null;
-
     /**
      * The expressions
      * 
      * @var string[]|\Stringable[]|ExpressionInterface[]
      */
     private array $expressions = [];
+    protected $_debug = true;
 
     /**
      * The context
@@ -27,11 +22,41 @@ class Expression implements ExpressionInterface, InjectableInterface
      */ 
     private array $context = [];
 
-    public function __construct(DecoratorManagerInterface $decoratorManager)
-    {
-        $this->decoratorManagerPrototype = $decoratorManager;
+    private ?string $type = null;
 
-        $this->init();
+
+    public function __construct(private DecoratorManagerInterface $decoratorManager)
+    {
+    }
+
+    /**
+     * Clone the expression
+     * 
+     * @return static
+     */
+    public function __clone()
+    {
+        $this->decoratorManager = (clone $this->decoratorManager)->reset();
+    }
+
+    public function prototype(): static
+    {
+        return clone $this;
+    }
+
+    /**
+     * Reset the expression
+     * 
+     * @return static
+     */
+    public function reset(): static
+    {
+        $this->expressions = [];
+        $this->context = [];
+        $this->type = null;
+        
+
+        return $this;
     }
 
     /**
@@ -41,25 +66,26 @@ class Expression implements ExpressionInterface, InjectableInterface
      */
     protected function getDecoratorManager(): DecoratorManagerInterface
     {
-        if ($this->decoratorManager === null) {
-            $this->decoratorManager = clone $this->decoratorManagerPrototype;
-        }
-
         return $this->decoratorManager;
     }
+
+    
 
     /**
      * {@inheritDoc}
      */
     public function __toString(): string
     {
-        try {
-            return $this->interpolate(
-                $this->getDecoratorManager()->applyDecorations($this)
-            );
-        } catch (\Throwable $e) {
-            return sprintf('[Error: %s]', $e->getMessage());
-        }
+        return $this->interpolate(
+            $this->getDecoratorManager()->applyDecorations($this)
+        );
+    }
+
+    public function getDebugString(): string
+    {
+        $this->wrap("{".strtoupper($this->type??'no-type').':', '}');
+
+        return $this->__toString();
     }
     
     /**
@@ -73,65 +99,28 @@ class Expression implements ExpressionInterface, InjectableInterface
     }
 
     /**
-     * Initialize the expression
-     * Set the default decorators
-     * 
-     * @return self
+     * {@inheritDoc}
      */
-    protected function init(): self
+    public function isEmpty(): bool
     {
-        return $this;
+        return empty($this->expressions);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function count(): int
-    {
-        return count($this->expressions);
-    }
-
-    /**
-     * Reset the expression
-     * 
-     * @return self
-     */
-    public function reset(): self
-    {
-        $this->expressions = [];
-
-        return $this->init();
-    }    
-
-    /**
-     * {@inheritDoc}
-     */
-    public function withExpression(...$expression): ExpressionInterface
-    {
-        $clone = clone $this;
-        $clone->expressions = [];
-        $clone->push(...$expression);
-
-        return $clone;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function push(...$expressions): self
+    public function push(...$expressions): static
     {
         foreach($expressions as $item) {
-            if (empty($item)) {
+            if (empty($item) || ($item instanceof ExpressionInterface && $item->isEmpty())) {
                 continue;
             }
             if (!is_scalar($item) && !$item instanceof ExpressionInterface) {
-                throw new \InvalidArgumentException(sprintf(
-                    'Invalid expression of type %s. Must be scalar, Stringable, or ExpressionInterface.',
-                    is_object($item) ? get_class($item) : gettype($item)
-                ));
+                throw new InvalidArgumentException(
+                    'Invalid expression of type. Must be scalar, Stringable, or ExpressionInterface.',
+                );
             }
             $this->expressions[] = $item;
-            //$this->expressions[] = (string)$item; //convert now?
         }
 
         return $this;
@@ -140,7 +129,7 @@ class Expression implements ExpressionInterface, InjectableInterface
     /**
      * {@inheritDoc}
      */
-    public function unshift(...$expressions): self
+    public function unshift(...$expressions): static
     {
         array_unshift($this->expressions, ...$expressions);
 
@@ -150,7 +139,7 @@ class Expression implements ExpressionInterface, InjectableInterface
     /**
      * {@inheritDoc}
      */
-    public function decorate(callable ...$decorator): self
+    public function decorate(callable ...$decorator): static
     {
         $this->getDecoratorManager()->addDecorator(...$decorator);
 
@@ -170,7 +159,7 @@ class Expression implements ExpressionInterface, InjectableInterface
     /**
      * {@inheritDoc}
      */
-    public function decorateItem(callable ...$decorator): self
+    public function decorateItem(callable ...$decorator): static
     {
         $this->getDecoratorManager()->addItemDecorator(...$decorator);
 
@@ -180,7 +169,7 @@ class Expression implements ExpressionInterface, InjectableInterface
     /**
      * {@inheritDoc}
      */
-    public function join($separator): self
+    public function join($separator): static
     {
         $this->getDecoratorManager()->join($separator);
 
@@ -190,7 +179,7 @@ class Expression implements ExpressionInterface, InjectableInterface
     /**
      * {@inheritDoc}
      */
-    public function wrap($left, $right = null): self
+    public function wrap($left, $right = null): static
     {
         $this->getDecoratorManager()->wrap($left, $right);
 
@@ -200,7 +189,7 @@ class Expression implements ExpressionInterface, InjectableInterface
     /**
      * {@inheritDoc}
      */
-    public function wrapItem($left, $right = null): self
+    public function wrapItem($left, $right = null): static
     {
         $this->getDecoratorManager()->wrapItem($left, $right);
 
@@ -211,7 +200,7 @@ class Expression implements ExpressionInterface, InjectableInterface
     /**
      * {@inheritDoc}
      */
-    public function withContext(array $context): ExpressionInterface
+    public function withContext(array $context): static
     {
         $clone = clone $this;
         $clone->context = $context;
@@ -258,6 +247,13 @@ class Expression implements ExpressionInterface, InjectableInterface
     protected function getContext(): array
     {
         return $this->context;
+    }
+
+    public function type(string $type): static
+    {
+        $this->type = $type;
+
+        return $this;
     }
 
     

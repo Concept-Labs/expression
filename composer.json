@@ -1,16 +1,16 @@
 {
     "name": "concept-labs/expression",
     "description": "(C)oncept-Labs Expression",
-    "keywords": ["php","expression"],
+    "keywords": ["php","expression", "composition"],
     "license": "Apache-2.0",
     "authors": [
         {
-            "name": "Victor Galitsky",
+            "name": "Viktor Halytskyi",
             "email": "concept.galitsky@gmail.com"
         }
     ],
     "require": {
-        "php": ">=7.4"
+        "php": ">=8.2"
     },
     "autoload": {
         "psr-4": {

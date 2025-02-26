@@ -3,8 +3,9 @@
 namespace Concept\Expression\Decorator;
 
 use Concept\Expression\ExpressionInterface;
+use Concept\Prototype\ResetableInterface;
 
-interface DecoratorManagerInterface
+interface DecoratorManagerInterface extends ResetableInterface
 {
     /**
      * Decorate
@@ -21,26 +22,26 @@ interface DecoratorManagerInterface
      * Used to join items
      * 
      * @param cllable $decorator
-     * @return self
+     * @return static
      */
-    public function setJoinDecorator(callable $decorator): self;
+    public function setJoinDecorator(callable $decorator): static;
 
     /**
      * Add the given decorators
      * 
      * @param callable ...$decorator
-     * @return self
+     * @return static
      */
-    public function addDecorator(callable ...$decorator): self;
+    public function addDecorator(callable ...$decorator): static;
 
     /**
      * Add Item Decorator
      * Add the given item decorators
      * 
      * @param callable ...$decorator
-     * @return self
+     * @return static
      */
-    public function addItemDecorator(callable ...$decorator): self;
+    public function addItemDecorator(callable ...$decorator): static;
 
     /**
      * Join
@@ -48,9 +49,9 @@ interface DecoratorManagerInterface
      * Used to join items
      * 
      * @param string|Stringable|ExpressionInterface $separator
-     * @return self
+     * @return static
      */
-    public function join($separator): self;
+    public function join($separator): static;
 
     /**
      * Wrapper
@@ -60,7 +61,7 @@ interface DecoratorManagerInterface
      * @param string|Stringable|ExpressionInterface|null $right //Stringable php 8.0
      * @return callable
      */
-    public function wrap($left, $right = null): self;
+    public function wrap($left, $right = null): static;
 
     /**
      * Wrap Item
@@ -68,7 +69,7 @@ interface DecoratorManagerInterface
      * 
      * @param string|Stringable|ExpressionInterface $left //Stringable php 8.0
      * @param string|Stringable|ExpressionInterface|null $right //Stringable php 8.0
-     * @return self
+     * @return static
      */
-    public function wrapItem($left, $right = null): self;
+    public function wrapItem($left, $right = null): static;
 }

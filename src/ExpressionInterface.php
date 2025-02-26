@@ -1,9 +1,17 @@
 <?php
 namespace Concept\Expression;
 
+use Concept\Singularity\Contract\Behavior\ResetableInterface;
+use Concept\Singularity\Contract\Lifecycle\PrototypeInterface;
 use IteratorAggregate;
+use Stringable;
 
-interface ExpressionInterface extends IteratorAggregate//, Stringable
+interface ExpressionInterface 
+    extends 
+        PrototypeInterface,
+        ResetableInterface,
+        IteratorAggregate, 
+        Stringable
 {
 
     /**
@@ -12,55 +20,51 @@ interface ExpressionInterface extends IteratorAggregate//, Stringable
      * @return string
      */
     public function __toString(): string;
+
+    /**
+     * Set the expression type
+     * 
+     * @param string $type
+     * 
+     * @return static
+     */
+    public function type(string $type): static;
      
     /**
      * Add expressions to the current expression.
      *
      * @param mixed ...$expressions
-     * @return self
+     * 
+     * @return static
      */
-    //public function add(...$expressions): self;
-    /**
-     * @see add()
-     */
-    public function push(...$expressions): self;
+    public function push(...$expressions): static;
 
     /**
-     * Add expressions to the current expression.
-     * @shortcut: withExpression()
+     * Add expressions to the beginning of the current expression.
      *
      * @param mixed ...$expressions
-     * @return self
+     * 
+     * @return static
      */
-    public function unshift(...$expressions): self;
-
-    /**
-     * Add an expression to the chain of expressions
-     * Keep the oiginal object immutable
-     * 
-     * @param string|Stringable ...$expression
-     * 
-     * @return self
-     */ 
-    //public function withExpression(...$expression): self;
+    public function unshift(...$expressions): static;
 
     /**
      * Set the expression decorator
      * 
      * @param callable ...$decorator
      * 
-     * @return self
+     * @return static
      * 
      * @throws \InvalidArgumentException
      */
-    public function decorate(callable ...$decorator): self;
+    public function decorate(callable ...$decorator): static;
 
     /**
      * Set the join decorator
      * 
      * @param callable $decorator
      * 
-     * @return self
+     * @return static
      * 
      * @throws \InvalidArgumentException
      */
@@ -71,7 +75,7 @@ interface ExpressionInterface extends IteratorAggregate//, Stringable
      * 
      * @param callable $decorator
      * 
-     * @return self
+     * @return static
      * 
      * @throws \InvalidArgumentException
      */
@@ -85,19 +89,12 @@ interface ExpressionInterface extends IteratorAggregate//, Stringable
      * 
      * @return string
      */
-    public function withContext(array $context): self;
+    public function withContext(array $context): static;
 
     /**
-     * Get the context for the expression
-     * 
-     * @return array
+     * @return bool
      */
-    public function count(): int;
-
-    /**
-     * Reset the expression
-     */
-    public function reset(): self;
+    public function isEmpty(): bool;
 
     /**
      * Shortcuts
@@ -108,9 +105,22 @@ interface ExpressionInterface extends IteratorAggregate//, Stringable
      * 
      * @param string|Stringable|ExpressionInterface $separator
      * 
-     * @return self
+     * @return static
      */
-    public function join($separator): self;
+    public function join($separator): static;
+
+    /**
+     * Wrap the expression with the given left and right strings/expressions
+     * 
+     * @param string|ExpressionInterface $left
+     * @param string|Stringable|ExpressionInterface|null $right
+     * 
+     * @return static
+     */
+    public function wrap(
+        string|Stringable|ExpressionInterface $left, 
+        string|Stringable|ExpressionInterface|null $right = null
+    ): static;
 
     /**
      * Wrap the expression with the given left and right strings/expressions
@@ -118,18 +128,11 @@ interface ExpressionInterface extends IteratorAggregate//, Stringable
      * @param string|Stringable|ExpressionInterface $left
      * @param string|Stringable|ExpressionInterface|null $right
      * 
-     * @return self
+     * @return static
      */
-    public function wrap($left, $right = null): self;
-
-    /**
-     * Wrap the expression with the given left and right strings/expressions
-     * 
-     * @param string|Stringable|ExpressionInterface $left
-     * @param string|Stringable|ExpressionInterface|null $right
-     * 
-     * @return self
-     */
-    public function wrapItem($left, $right = null): self;
+    public function wrapItem(
+        string|Stringable|ExpressionInterface $left, 
+        string|Stringable|ExpressionInterface|null $right = null
+    ): static;
 
 }

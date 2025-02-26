@@ -2,15 +2,12 @@
 
 namespace Concept\Expression\Decorator;
 
-use Concept\Di\InjectableInterface;
-use Concept\Di\InjectableTrait;
 use Concept\Expression\ExpressionInterface;
-use Concept\Prototype\ResetableInterface;
+use Concept\Singularity\Contract\Lifecycle\PrototypeInterface;
 use Traversable;
 
-class DecoratorManager implements DecoratorManagerInterface, InjectableInterface, ResetableInterface
+class DecoratorManager implements DecoratorManagerInterface, PrototypeInterface
 {
-    use InjectableTrait;
 
     /**
      * The decorators
@@ -36,10 +33,19 @@ class DecoratorManager implements DecoratorManagerInterface, InjectableInterface
      */
     private $joinDecorator = null;
 
+    public function prototype(): static
+    {
+        return (clone $this)->reset();
+    }
+
+    public function __clone()
+    {
+    }
+
     /**
      * {@inheritDoc}
      */
-    public function reset(): self
+    public function reset(): static
     {
         $this->decorators = [];
         $this->itemDecorators = [];
@@ -51,7 +57,7 @@ class DecoratorManager implements DecoratorManagerInterface, InjectableInterface
     /**
      * {@inheritDoc}
      */
-    public function join($separator): self
+    public function join($separator): static
     {
         return $this->setJoinDecorator(fn (array $items) => implode($separator, $items));
     }
@@ -59,7 +65,7 @@ class DecoratorManager implements DecoratorManagerInterface, InjectableInterface
     /**
      * {@inheritDoc}
      */
-    public function wrap($left, $right = null): self
+    public function wrap($left, $right = null): static
     {
         return $this->addDecorator(Decorator::wrapper($left, $right));
     }
@@ -67,7 +73,7 @@ class DecoratorManager implements DecoratorManagerInterface, InjectableInterface
     /**
      * {@inheritDoc}
      */
-    public function wrapItem($left, $right = null): self
+    public function wrapItem($left, $right = null): static
     {
         return $this->addItemDecorator(Decorator::wrapper($left, $right));
     }
@@ -75,7 +81,7 @@ class DecoratorManager implements DecoratorManagerInterface, InjectableInterface
     /**
      * {@inheritDoc}
      */
-    public function setJoinDecorator(callable $decorator): self
+    public function setJoinDecorator(callable $decorator): static
     {
         $this->joinDecorator = $decorator;
 
@@ -85,7 +91,7 @@ class DecoratorManager implements DecoratorManagerInterface, InjectableInterface
     /**
      * {@inheritDoc}
      */
-    public function addDecorator(callable ...$decorator): self
+    public function addDecorator(callable ...$decorator): static
     {
         array_push($this->decorators, ...$decorator);
 
@@ -95,7 +101,7 @@ class DecoratorManager implements DecoratorManagerInterface, InjectableInterface
     /**
      * {@inheritDoc}
      */
-    public function addItemDecorator(callable ...$decorator): self
+    public function addItemDecorator(callable ...$decorator): static
     {
         array_push($this->itemDecorators, ...$decorator);
 
@@ -107,7 +113,7 @@ class DecoratorManager implements DecoratorManagerInterface, InjectableInterface
      */
     public function applyDecorations(ExpressionInterface $expression): string
     {
-        $items = iterator_to_array($this->decorateItems($expression));
+        $items = $this->decorateItems($expression);
         $join = $this->getJoinDecorator();
         $string = $join($items);
         foreach ($this->getDecorators() as $decorator) {
@@ -121,18 +127,20 @@ class DecoratorManager implements DecoratorManagerInterface, InjectableInterface
      * Decorate the items
      * 
      * @param Traversable $items
-     * @return Traversable
+     * @return array
      */
-    protected function decorateItems(Traversable $items)
+    protected function decorateItems(Traversable $items): array
     {
+        $decoratedItems = [];
         foreach ($items as $item) {
             $itemString = (string)$item;
             foreach ($this->getItemDecorators() as $decorator) {
                 $itemString = $decorator($itemString);
             }
-            yield $itemString;
+            $decoratedItems[] = $itemString;
         }
         
+        return $decoratedItems;
     }
 
     /**
