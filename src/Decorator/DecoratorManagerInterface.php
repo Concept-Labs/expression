@@ -3,7 +3,7 @@
 namespace Concept\Expression\Decorator;
 
 use Concept\Expression\ExpressionInterface;
-use Concept\Prototype\ResetableInterface;
+use Concept\Singularity\Contract\Behavior\ResetableInterface;
 
 interface DecoratorManagerInterface extends ResetableInterface
 {
