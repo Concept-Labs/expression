@@ -36,7 +36,7 @@ class Expression implements ExpressionInterface
      */
     public function __clone()
     {
-        $this->decoratorManager = (clone $this->decoratorManager)->reset();
+        $this->decoratorManager = clone $this->decoratorManager;
     }
 
     public function prototype(): static

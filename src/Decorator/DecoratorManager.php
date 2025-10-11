@@ -35,11 +35,12 @@ class DecoratorManager implements DecoratorManagerInterface, PrototypeInterface
 
     public function prototype(): static
     {
-        return (clone $this)->reset();
+        return clone $this;
     }
 
     public function __clone()
     {
+        $this->reset()
     }
 
     /**
