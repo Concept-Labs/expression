@@ -156,10 +156,9 @@ We use both Pest and PHPUnit for testing. You can write tests in either framewor
 
 ```php
 use Concept\Expression\Expression;
-use Concept\Expression\Decorator\DecoratorManager;
 
 it('can push scalar values', function () {
-    $expression = new Expression(new DecoratorManager());
+    $expression = new Expression();
     $expression->push('SELECT', 'column');
     
     expect($expression->isEmpty())->toBeFalse();
@@ -174,13 +173,12 @@ namespace Concept\Expression\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
 use Concept\Expression\Expression;
-use Concept\Expression\Decorator\DecoratorManager;
 
 class ExpressionTest extends TestCase
 {
     public function testCanPushScalarValues(): void
     {
-        $expression = new Expression(new DecoratorManager());
+        $expression = new Expression();
         $expression->push('SELECT', 'column');
         
         $this->assertFalse($expression->isEmpty());
@@ -457,7 +455,7 @@ PHP 8.2.0
 
 **Steps to Reproduce**
 \`\`\`php
-$expr = new Expression(new DecoratorManager());
+$expr = new Expression();
 $expr->push('value')->wrap('(', ')');
 $clone = clone $expr;
 echo $clone; // Expected: (value), Actual: value
