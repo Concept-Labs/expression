@@ -18,9 +18,8 @@ This document provides practical examples of using the Expression library.
 
 ```php
 use Concept\Expression\Expression;
-use Concept\Expression\Decorator\DecoratorManager;
 
-$expr = new Expression(new DecoratorManager());
+$expr = new Expression();
 $expr->push('Hello', 'World');
 
 echo $expr; // Output: Hello World
@@ -29,7 +28,7 @@ echo $expr; // Output: Hello World
 ### With Custom Separator
 
 ```php
-$expr = (new Expression(new DecoratorManager()))
+$expr = (new Expression())
     ->push('apple', 'banana', 'cherry')
     ->join(', ');
 
@@ -39,7 +38,7 @@ echo $expr; // Output: apple, banana, cherry
 ### Wrapping Values
 
 ```php
-$expr = (new Expression(new DecoratorManager()))
+$expr = (new Expression())
     ->push('important')
     ->wrap('[', ']');
 
@@ -49,7 +48,7 @@ echo $expr; // Output: [important]
 ### Wrapping Items
 
 ```php
-$expr = (new Expression(new DecoratorManager()))
+$expr = (new Expression())
     ->push('a', 'b', 'c')
     ->wrapItem('"')
     ->join(', ');
@@ -64,12 +63,12 @@ echo $expr; // Output: "a", "b", "c"
 ### Simple SELECT Query
 
 ```php
-$columns = (new Expression(new DecoratorManager()))
+$columns = (new Expression())
     ->push('id', 'name', 'email')
     ->wrapItem('`')
     ->join(', ');
 
-$query = (new Expression(new DecoratorManager()))
+$query = (new Expression())
     ->push('SELECT', $columns, 'FROM', 'users');
 
 echo $query;
@@ -79,17 +78,17 @@ echo $query;
 ### SELECT with WHERE Clause
 
 ```php
-$columns = (new Expression(new DecoratorManager()))
+$columns = (new Expression())
     ->push('id', 'name')
     ->wrapItem('`')
     ->join(', ');
 
-$conditions = (new Expression(new DecoratorManager()))
+$conditions = (new Expression())
     ->push('status = "active"', 'age > 18')
     ->join(' AND ')
     ->wrap('WHERE ', '');
 
-$query = (new Expression(new DecoratorManager()))
+$query = (new Expression())
     ->push('SELECT', $columns)
     ->push('FROM', 'users')
     ->push($conditions);
@@ -101,18 +100,18 @@ echo $query;
 ### INSERT Query
 
 ```php
-$columns = (new Expression(new DecoratorManager()))
+$columns = (new Expression())
     ->push('name', 'email', 'status')
     ->wrapItem('`')
     ->join(', ')
     ->wrap('(', ')');
 
-$values = (new Expression(new DecoratorManager()))
+$values = (new Expression())
     ->push("'John Doe'", "'john@example.com'", "'active'")
     ->join(', ')
     ->wrap('(', ')');
 
-$query = (new Expression(new DecoratorManager()))
+$query = (new Expression())
     ->push('INSERT INTO', 'users', $columns)
     ->push('VALUES', $values);
 
@@ -123,16 +122,16 @@ echo $query;
 ### UPDATE Query
 
 ```php
-$sets = (new Expression(new DecoratorManager()))
+$sets = (new Expression())
     ->push('name = "Jane Doe"', 'status = "inactive"')
     ->join(', ')
     ->wrap('SET ', '');
 
-$where = (new Expression(new DecoratorManager()))
+$where = (new Expression())
     ->push('id = 1')
     ->wrap('WHERE ', '');
 
-$query = (new Expression(new DecoratorManager()))
+$query = (new Expression())
     ->push('UPDATE', 'users')
     ->push($sets)
     ->push($where);
@@ -144,20 +143,20 @@ echo $query;
 ### Complex JOIN Query
 
 ```php
-$columns = (new Expression(new DecoratorManager()))
+$columns = (new Expression())
     ->push('u.id', 'u.name', 'p.title', 'p.created_at')
     ->wrapItem('`')
     ->join(', ');
 
-$joins = (new Expression(new DecoratorManager()))
+$joins = (new Expression())
     ->push('LEFT JOIN', 'posts', 'p', 'ON', 'u.id = p.user_id');
 
-$where = (new Expression(new DecoratorManager()))
+$where = (new Expression())
     ->push('u.status = "active"', 'p.published = 1')
     ->join(' AND ')
     ->wrap('WHERE ', '');
 
-$query = (new Expression(new DecoratorManager()))
+$query = (new Expression())
     ->push('SELECT', $columns)
     ->push('FROM', 'users', 'u')
     ->push($joins)
@@ -172,16 +171,16 @@ echo $query;
 ```php
 function buildSelectQuery(array $columns, string $table, array $conditions = []): string
 {
-    $columnsExpr = (new Expression(new DecoratorManager()))
+    $columnsExpr = (new Expression())
         ->push(...$columns)
         ->wrapItem('`')
         ->join(', ');
 
-    $query = (new Expression(new DecoratorManager()))
+    $query = (new Expression())
         ->push('SELECT', $columnsExpr, 'FROM', $table);
 
     if (!empty($conditions)) {
-        $whereExpr = (new Expression(new DecoratorManager()))
+        $whereExpr = (new Expression())
             ->push(...$conditions)
             ->join(' AND ')
             ->wrap('WHERE ', '');
@@ -203,7 +202,7 @@ echo buildSelectQuery(['id', 'name'], 'users', ['status = "active"', 'age > 18']
 ### Environment Variables
 
 ```php
-$config = (new Expression(new DecoratorManager()))
+$config = (new Expression())
     ->push('DB_HOST=localhost', 'DB_PORT=3306', 'DB_NAME=myapp')
     ->decorateItem(fn($item) => strtoupper($item))
     ->join("\n");
@@ -218,12 +217,12 @@ echo $config;
 ### Command Line Arguments
 
 ```php
-$args = (new Expression(new DecoratorManager()))
+$args = (new Expression())
     ->push('verbose', 'debug', 'force')
     ->decorateItem(fn($item) => "--$item")
     ->join(' ');
 
-$command = (new Expression(new DecoratorManager()))
+$command = (new Expression())
     ->push('php', 'script.php', $args);
 
 echo $command;
@@ -233,7 +232,7 @@ echo $command;
 ### CSS Classes
 
 ```php
-$classes = (new Expression(new DecoratorManager()))
+$classes = (new Expression())
     ->push('btn', 'btn-primary', 'btn-lg', 'active')
     ->join(' ');
 
@@ -248,7 +247,7 @@ echo '<button class="' . $classes . '">Click Me</button>';
 ### Simple Template
 
 ```php
-$template = (new Expression(new DecoratorManager()))
+$template = (new Expression())
     ->push('Hello', '{name}!', 'Welcome to', '{site}');
 
 $rendered = $template->withContext([
@@ -263,7 +262,7 @@ echo $rendered;
 ### Email Template
 
 ```php
-$email = (new Expression(new DecoratorManager()))
+$email = (new Expression())
     ->push(
         'Dear {name},',
         '',
@@ -296,18 +295,18 @@ class EmailTemplate
 
     public function __construct()
     {
-        $this->header = (new Expression(new DecoratorManager()))
+        $this->header = (new Expression())
             ->push('Dear {name},', '')
             ->join("\n");
 
-        $this->footer = (new Expression(new DecoratorManager()))
+        $this->footer = (new Expression())
             ->push('', 'Best regards,', '{company_name}')
             ->join("\n");
     }
 
     public function build(string $body, array $context): string
     {
-        $email = (new Expression(new DecoratorManager()))
+        $email = (new Expression())
             ->push($this->header, $body, $this->footer)
             ->join("\n");
 
@@ -336,12 +335,12 @@ class QueryBuilder
 
     public function __construct()
     {
-        $this->query = new Expression(new DecoratorManager());
+        $this->query = new Expression();
     }
 
     public function select(string ...$columns): self
     {
-        $columnsExpr = (new Expression(new DecoratorManager()))
+        $columnsExpr = (new Expression())
             ->push(...$columns)
             ->wrapItem('`')
             ->join(', ');
@@ -358,7 +357,7 @@ class QueryBuilder
 
     public function where(string ...$conditions): self
     {
-        $whereExpr = (new Expression(new DecoratorManager()))
+        $whereExpr = (new Expression())
             ->push(...$conditions)
             ->join(' AND ')
             ->wrap('WHERE ', '');
@@ -398,7 +397,7 @@ class ExpressionFactory
 {
     public static function sql(): Expression
     {
-        return new Expression(new DecoratorManager());
+        return new Expression();
     }
 
     public static function columns(string ...$columns): Expression
@@ -454,7 +453,7 @@ $prettyPrintDecorator = function(string $sql): string {
     return $sql;
 };
 
-$query = (new Expression(new DecoratorManager()))
+$query = (new Expression())
     ->push('select', 'id', 'from', 'users', 'where', 'status = "active"')
     ->decorate($formatDecorator)
     ->decorate($prettyPrintDecorator)
@@ -478,16 +477,16 @@ function buildDynamicQuery(
     ?string $orderBy = null,
     ?int $limit = null
 ): string {
-    $columnsExpr = (new Expression(new DecoratorManager()))
+    $columnsExpr = (new Expression())
         ->push(...$columns)
         ->wrapItem('`')
         ->join(', ');
 
-    $query = (new Expression(new DecoratorManager()))
+    $query = (new Expression())
         ->push('SELECT', $columnsExpr, 'FROM', $table);
 
     if ($where) {
-        $whereExpr = (new Expression(new DecoratorManager()))
+        $whereExpr = (new Expression())
             ->push(...$where)
             ->join(' AND ')
             ->wrap('WHERE ', '');
@@ -548,7 +547,7 @@ class CachedExpression
 }
 
 // Usage
-$expr = (new Expression(new DecoratorManager()))
+$expr = (new Expression())
     ->push('SELECT', '*', 'FROM', 'users');
 
 $cached = new CachedExpression($expr);
@@ -572,7 +571,7 @@ echo $cached; // Renders and caches new value
 
 ```php
 // Create base query prototype
-$baseQuery = (new Expression(new DecoratorManager()))
+$baseQuery = (new Expression())
     ->push('SELECT')
     ->type('select');
 
@@ -602,7 +601,6 @@ Here's a complete example of building a simple query builder library:
 namespace App\QueryBuilder;
 
 use Concept\Expression\Expression;
-use Concept\Expression\Decorator\DecoratorManager;
 
 class Query
 {
@@ -611,7 +609,7 @@ class Query
 
     public function __construct()
     {
-        $this->expr = new Expression(new DecoratorManager());
+        $this->expr = new Expression();
     }
 
     public function select(string ...$columns): self
@@ -621,7 +619,7 @@ class Query
         if (empty($columns)) {
             $this->expr->push('*');
         } else {
-            $columnsExpr = (new Expression(new DecoratorManager()))
+            $columnsExpr = (new Expression())
                 ->push(...$columns)
                 ->join(', ');
             $this->expr->push($columnsExpr);
@@ -654,7 +652,7 @@ class Query
     public function where(string ...$conditions): self
     {
         if (!empty($conditions)) {
-            $whereExpr = (new Expression(new DecoratorManager()))
+            $whereExpr = (new Expression())
                 ->push(...$conditions)
                 ->join(' AND ')
                 ->wrap('WHERE ', '');

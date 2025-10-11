@@ -27,22 +27,22 @@ composer require concept-labs/expression
 
 ```php
 use Concept\Expression\Expression;
-use Concept\Expression\Decorator\DecoratorManager;
+use Concept\Expression\Expression;
 
 // Create an expression
-$expression = new Expression(new DecoratorManager());
+$expression = new Expression();
 
 // Build a simple expression
 $expression->push('SELECT', 'id', 'name', 'FROM', 'users');
 echo $expression; // Output: SELECT id name FROM users
 
 // Use decorators for more control
-$columns = (new Expression(new DecoratorManager()))
+$columns = (new Expression())
     ->push('id', 'name', 'email')
     ->wrapItem('`')
     ->join(', ');
 
-$query = (new Expression(new DecoratorManager()))
+$query = (new Expression())
     ->push('SELECT', $columns, 'FROM', 'users');
     
 echo $query; // Output: SELECT `id`, `name`, `email` FROM users
@@ -53,7 +53,7 @@ echo $query; // Output: SELECT `id`, `name`, `email` FROM users
 ### Creating Expressions
 
 ```php
-$expr = new Expression(new DecoratorManager());
+$expr = new Expression();
 
 // Add expressions
 $expr->push('SELECT', 'column');
@@ -68,11 +68,11 @@ echo $expr; // Output: EXPLAIN SELECT column FROM table
 ### Nested Expressions
 
 ```php
-$columns = (new Expression(new DecoratorManager()))
+$columns = (new Expression())
     ->push('id', 'name')
     ->join(', ');
 
-$mainExpr = (new Expression(new DecoratorManager()))
+$mainExpr = (new Expression())
     ->push('SELECT', $columns, 'FROM', 'users');
 
 echo $mainExpr; // Output: SELECT id, name FROM users
@@ -83,7 +83,7 @@ echo $mainExpr; // Output: SELECT id, name FROM users
 #### Wrap Expressions
 
 ```php
-$expr = (new Expression(new DecoratorManager()))
+$expr = (new Expression())
     ->push('value')
     ->wrap('(', ')');
     
@@ -93,7 +93,7 @@ echo $expr; // Output: (value)
 #### Wrap Items
 
 ```php
-$expr = (new Expression(new DecoratorManager()))
+$expr = (new Expression())
     ->push('id', 'name', 'email')
     ->wrapItem('`')
     ->join(', ');
@@ -105,21 +105,21 @@ echo $expr; // Output: `id`, `name`, `email`
 
 ```php
 // Item decorator - applied to each item
-$expr = (new Expression(new DecoratorManager()))
+$expr = (new Expression())
     ->push('select', 'from', 'where')
     ->decorateItem(fn($item) => strtoupper($item));
 
 echo $expr; // Output: SELECT FROM WHERE
 
 // Expression decorator - applied to final result
-$expr = (new Expression(new DecoratorManager()))
+$expr = (new Expression())
     ->push('column')
     ->decorate(fn($str) => "SELECT $str FROM users");
 
 echo $expr; // Output: SELECT column FROM users
 
 // Join decorator - custom join logic
-$expr = (new Expression(new DecoratorManager()))
+$expr = (new Expression())
     ->push('condition1', 'condition2')
     ->decorateJoin(fn($items) => implode(' AND ', $items));
 
@@ -129,7 +129,7 @@ echo $expr; // Output: condition1 AND condition2
 ### Context Interpolation
 
 ```php
-$template = (new Expression(new DecoratorManager()))
+$template = (new Expression())
     ->push('SELECT', '{column}', 'FROM', '{table}');
 
 $concrete = $template->withContext([
@@ -144,7 +144,7 @@ echo $template; // Output: SELECT {column} FROM {table} (unchanged)
 ### Clone and Prototype
 
 ```php
-$base = (new Expression(new DecoratorManager()))
+$base = (new Expression())
     ->push('SELECT', 'id');
 
 // Clone creates independent copy
@@ -161,7 +161,7 @@ $proto = $base->prototype();
 ### Reset
 
 ```php
-$expr = (new Expression(new DecoratorManager()))
+$expr = (new Expression())
     ->push('SELECT', 'column')
     ->type('select');
 
@@ -176,20 +176,20 @@ echo $expr; // Output: (empty string)
 
 ```php
 // Build a complex SELECT query
-$columns = (new Expression(new DecoratorManager()))
+$columns = (new Expression())
     ->push('u.id', 'u.name', 'u.email', 'p.title')
     ->wrapItem('`')
     ->join(', ');
 
-$joins = (new Expression(new DecoratorManager()))
+$joins = (new Expression())
     ->push('JOIN', 'posts', 'p', 'ON', 'u.id = p.user_id');
 
-$where = (new Expression(new DecoratorManager()))
+$where = (new Expression())
     ->push('u.active = 1', 'p.published = 1')
     ->join(' AND ')
     ->wrap('WHERE ', '');
 
-$query = (new Expression(new DecoratorManager()))
+$query = (new Expression())
     ->push('SELECT', $columns)
     ->push('FROM', 'users', 'u')
     ->push($joins)
@@ -202,7 +202,7 @@ echo $query;
 ### Multiple Decorator Layers
 
 ```php
-$expr = (new Expression(new DecoratorManager()))
+$expr = (new Expression())
     ->push('a', 'b', 'c')
     ->decorateItem(fn($item) => strtoupper($item))  // Items: A, B, C
     ->decorateItem(fn($item) => "`$item`")          // Items: `A`, `B`, `C`
