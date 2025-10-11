@@ -40,7 +40,7 @@ class DecoratorManager implements DecoratorManagerInterface, PrototypeInterface
 
     public function __clone()
     {
-        $this->reset()
+        $this->reset();
     }
 
     /**
