@@ -65,6 +65,19 @@ $expr->unshift('EXPLAIN');
 echo $expr; // Output: EXPLAIN SELECT column FROM table
 ```
 
+### Using __invoke() for Concise Syntax
+
+```php
+// You can also use the __invoke() method for a more concise syntax
+$expr = new Expression();
+$expr('SELECT', 'column')('FROM', 'table');
+
+// Equivalent to:
+// $expr->push('SELECT', 'column')->push('FROM', 'table');
+
+echo $expr; // Output: SELECT column FROM table
+```
+
 ### Nested Expressions
 
 ```php
@@ -228,6 +241,7 @@ For detailed API documentation, see [docs/api-reference.md](docs/api-reference.m
 
 #### Expression Methods
 
+- `__invoke(...$expressions)` - Add expressions (alias for push, enables callable syntax)
 - `push(...$expressions)` - Add expressions to the end
 - `unshift(...$expressions)` - Add expressions to the beginning
 - `wrap($left, $right = null)` - Wrap the entire expression
