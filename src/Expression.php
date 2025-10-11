@@ -1,7 +1,8 @@
 <?php
 namespace Concept\Expression;
 
-use Concept\Expression\Exception\InvalidArgumentException;
+use Concept\DBAL\Exception\InvalidArgumentException;
+use Concept\Expression\Decorator\DecoratorManager;
 use Concept\Expression\Decorator\DecoratorManagerInterface;
 use Traversable;
 
@@ -24,9 +25,18 @@ class Expression implements ExpressionInterface
 
     private ?string $type = null;
 
+    private ?DecoratorManagerInterface $decoratorManager = null;
 
-    public function __construct(private DecoratorManagerInterface $decoratorManager)
+    /**
+     * Invoke the expression
+     * 
+     * @param mixed ...$expressions
+     * 
+     * @return static
+     */
+    public function __invoke(...$expressions)
     {
+        return $this->push(...$expressions);
     }
 
     /**
@@ -66,7 +76,7 @@ class Expression implements ExpressionInterface
      */
     protected function getDecoratorManager(): DecoratorManagerInterface
     {
-        return $this->decoratorManager;
+        return $this->decoratorManager ??= new DecoratorManager();
     }
 
     
