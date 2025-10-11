@@ -1,0 +1,33 @@
+# Composer
+/vendor/
+composer.lock
+
+# PHPUnit
+.phpunit.cache/
+.phpunit.result.cache
+coverage/
+coverage.xml
+phpunit.xml.bak
+
+# Pest
+.pest/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Build artifacts
+/build/
+/dist/
+
+# Logs
+*.log
+
+# Temporary files
+/tmp/
+*.tmp
+*.bak
