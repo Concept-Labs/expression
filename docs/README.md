@@ -49,16 +49,16 @@ With the Expression library:
 
 ```php
 // ✅ Clear, maintainable, composable
-$columns = (new Expression(new DecoratorManager()))
+$columns = (new Expression())
     ->push(...$columns)
     ->wrapItem('`')
     ->join(', ');
 
-$query = (new Expression(new DecoratorManager()))
+$query = (new Expression())
     ->push('SELECT', $columns, 'FROM', $table);
 
 if (!empty($where)) {
-    $whereExpr = (new Expression(new DecoratorManager()))
+    $whereExpr = (new Expression())
         ->push(...$where)
         ->join(' AND ')
         ->wrap('WHERE ', '');
@@ -73,7 +73,7 @@ if (!empty($where)) {
 Chain method calls for readable code:
 
 ```php
-$expr = (new Expression(new DecoratorManager()))
+$expr = (new Expression())
     ->push('value1', 'value2')
     ->join(', ')
     ->wrap('(', ')');

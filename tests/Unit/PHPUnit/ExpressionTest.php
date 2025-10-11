@@ -12,7 +12,7 @@ class ExpressionTest extends TestCase
 {
     private function createExpression(): ExpressionInterface
     {
-        return new Expression(new DecoratorManager());
+        return new Expression();
     }
 
     public function testCanBeInstantiated(): void

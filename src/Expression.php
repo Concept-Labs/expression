@@ -1,7 +1,7 @@
 <?php
 namespace Concept\Expression;
 
-use Concept\DBAL\Exception\InvalidArgumentException;
+use Concept\Expression\Exception\InvalidArgumentException;
 use Concept\Expression\Decorator\DecoratorManager;
 use Concept\Expression\Decorator\DecoratorManagerInterface;
 use Traversable;

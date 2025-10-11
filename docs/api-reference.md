@@ -24,21 +24,53 @@ The main class for creating and manipulating expressions.
 ### Constructor
 
 ```php
-public function __construct(DecoratorManagerInterface $decoratorManager)
+public function __construct()
 ```
 
-Creates a new expression instance.
+Creates a new expression instance with a built-in decorator manager.
 
-**Parameters:**
-- `$decoratorManager` - The decorator manager to use
+**Parameters:** None - DecoratorManager is created automatically
 
 **Example:**
 ```php
 use Concept\Expression\Expression;
-use Concept\Expression\Decorator\DecoratorManager;
 
-$expression = new Expression(new DecoratorManager());
+$expression = new Expression();
 ```
+
+**Note:** The DecoratorManager is now created internally on-demand, so you don't need to pass it to the constructor.
+
+---
+
+### Magic Methods
+
+#### __invoke()
+
+```php
+public function __invoke(...$expressions): static
+```
+
+Invoke the expression as a function to add expressions. This is a convenient alias for `push()`.
+
+**Parameters:**
+- `...$expressions` - Variable number of scalar values or ExpressionInterface instances
+
+**Returns:** `static` - Returns $this for method chaining
+
+**Example:**
+```php
+$expr = new Expression();
+$expr('SELECT', 'column'); // Same as $expr->push('SELECT', 'column');
+
+// Can chain with other methods
+$expr('FROM', 'table')->join(' ');
+```
+
+**Notes:**
+- This provides a more concise syntax for adding expressions
+- Follows the same rules as `push()` method
+
+---
 
 ### Methods
 
@@ -335,7 +367,7 @@ Check if the expression is empty.
 
 **Example:**
 ```php
-$expr = new Expression(new DecoratorManager());
+$expr = new Expression();
 $expr->isEmpty(); // true
 $expr->push('value');
 $expr->isEmpty(); // false
