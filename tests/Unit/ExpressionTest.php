@@ -29,6 +29,52 @@ describe('Expression Basic Operations', function () {
         expect((string)$expression)->toBe('SELECT column');
     });
 
+    it('can push Stringable values', function () {
+        $expression = createExpression();
+        $stringable = new class {
+            public function __toString() {
+                return 'StringableValue';
+            }
+        };
+        $expression->push('Value:', $stringable);
+        
+        expect((string)$expression)->toBe('Value: StringableValue');
+    });
+
+    it('can push Expression values', function () {
+        $expression = createExpression();
+        $subExpression = createExpression();
+        $subExpression->push('inner', 'expression');
+        
+        $expression->push('outer', $subExpression);
+        
+        expect((string)$expression)->toBe('outer inner expression');
+    });
+
+    it('push on __invoke()', function () {
+        $expression = createExpression();
+        $expression('SELECT', 'column');
+        
+        expect((string)$expression)->toBe('SELECT column');
+    });
+
+    it('can invoke chained expressions', function () {
+        $expression = createExpression();
+        $expression('SELECT')('column');
+        
+        expect((string)$expression)->toBe('SELECT column');
+    });
+
+    it('can invoke nested expressions', function () {
+        $expression = createExpression();
+        $subExpression = createExpression();
+        $subExpression('inner', 'expression');
+        
+        $expression('outer', $subExpression);
+        
+        expect((string)$expression)->toBe('outer inner expression');
+    });
+
     it('can push multiple expressions at once', function () {
         $expression = createExpression();
         $expression->push('SELECT', 'column', 'FROM', 'table');
@@ -115,7 +161,7 @@ describe('Expression Reset and Clone', function () {
         $prototype->push('FROM', 'table');
         
         expect((string)$expression)->toBe('SELECT column');
-        expect((string)$prototype)->toBe('SELECT column FROM table');
+        expect((string)$prototype)->toBe('FROM table');
     });
 
     it('clones decorator manager when cloned', function () {

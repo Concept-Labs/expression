@@ -46,12 +46,12 @@ class Expression implements ExpressionInterface
      */
     public function __clone()
     {
-        $this->decoratorManager = clone $this->decoratorManager;
+        $this->decoratorManager = clone $this->getDecoratorManager();
     }
 
     public function prototype(): static
     {
-        return clone $this;
+        return (clone $this)->reset();
     }
 
     /**
@@ -64,6 +64,7 @@ class Expression implements ExpressionInterface
         $this->expressions = [];
         $this->context = [];
         $this->type = null;
+        $this->decoratorManager = null;
         
 
         return $this;
@@ -125,7 +126,7 @@ class Expression implements ExpressionInterface
             if (empty($item) || ($item instanceof ExpressionInterface && $item->isEmpty())) {
                 continue;
             }
-            if (!is_scalar($item) && !$item instanceof ExpressionInterface) {
+            if (!is_scalar($item) && !$item instanceof ExpressionInterface && !$item instanceof \Stringable) {
                 throw new InvalidArgumentException(
                     'Invalid expression of type. Must be scalar, Stringable, or ExpressionInterface.',
                 );

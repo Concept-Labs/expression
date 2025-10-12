@@ -12,7 +12,7 @@ class ExpressionTest extends TestCase
 {
     private function createExpression(): ExpressionInterface
     {
-        return new Expression();
+        return new Expression(new DecoratorManager());
     }
 
     public function testCanBeInstantiated(): void
@@ -112,7 +112,7 @@ class ExpressionTest extends TestCase
         $prototype->push('FROM', 'table');
         
         $this->assertEquals('SELECT column', (string)$expression);
-        $this->assertEquals('SELECT column FROM table', (string)$prototype);
+        $this->assertEquals('FROM table', (string)$prototype);
     }
 
     public function testCanSetType(): void

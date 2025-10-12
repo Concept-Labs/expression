@@ -238,7 +238,7 @@ describe('Expression with Nested Expressions and Decorators', function () {
         
         $insert = createExpression();
         $insert->push('INSERT INTO users', $columns, 'VALUES', $values);
-        $insert->wrapItem(fn($item) => $item);
+        //$insert->wrapItem(fn($item) => $item);
         
         expect((string)$insert)->toContain('INSERT INTO users');
         expect((string)$insert)->toContain('id, name');

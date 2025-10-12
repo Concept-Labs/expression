@@ -17,12 +17,12 @@ abstract class Decorator implements DecoratorInterface
      */
     public static function wrapper($left, $right = null): callable
     {
-        if (!is_string($left) && !$left instanceof ExpressionInterface) {
+        if (!is_string($left) && !$left instanceof ExpressionInterface && !$left instanceof \Stringable) {
             //php 8.0: check Stringable interface
             throw new InvalidArgumentException('Invalid left wrapper. Must be a string or ExpressionInterface.');
         }
 
-        if ($right && !is_string($right) && !$right instanceof ExpressionInterface) {
+        if ($right && !is_string($right) && !$right instanceof ExpressionInterface && !$right instanceof \Stringable) {
             //php 8.0: check Stringable interface
             throw new InvalidArgumentException('Invalid right wrapper. Must be a string or ExpressionInterface.');
         }
@@ -40,7 +40,7 @@ abstract class Decorator implements DecoratorInterface
      */
     public static function joiner($separator): callable
     {
-        if (!is_string($separator) && !$separator instanceof ExpressionInterface) {
+        if (!is_string($separator) && !$separator instanceof ExpressionInterface && !$separator instanceof \Stringable) {
             //php 8.0: check Stringable interface
             throw new InvalidArgumentException('Invalid separator. Must be a string or ExpressionInterface.');
         }

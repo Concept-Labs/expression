@@ -6,6 +6,9 @@ use Concept\Expression\ExpressionInterface;
 use Concept\Singularity\Contract\Lifecycle\PrototypeInterface;
 use Traversable;
 
+/**
+ * Decorator manager for expressions
+ */
 class DecoratorManager implements DecoratorManagerInterface, PrototypeInterface
 {
 
@@ -35,12 +38,7 @@ class DecoratorManager implements DecoratorManagerInterface, PrototypeInterface
 
     public function prototype(): static
     {
-        return clone $this;
-    }
-
-    public function __clone()
-    {
-        $this->reset();
+        return (clone $this)->reset();
     }
 
     /**
@@ -57,6 +55,9 @@ class DecoratorManager implements DecoratorManagerInterface, PrototypeInterface
 
     /**
      * {@inheritDoc}
+     * 
+     * @todo add type hints when minimum php version is 8.0
+     * @todo add callable ability for joiner
      */
     public function join($separator): static
     {
@@ -65,6 +66,8 @@ class DecoratorManager implements DecoratorManagerInterface, PrototypeInterface
 
     /**
      * {@inheritDoc}
+     * 
+     * @todo: add callable ability for wrapper
      */
     public function wrap($left, $right = null): static
     {
@@ -73,6 +76,8 @@ class DecoratorManager implements DecoratorManagerInterface, PrototypeInterface
 
     /**
      * {@inheritDoc}
+     * 
+     * @todo: add callable ability for wrapper
      */
     public function wrapItem($left, $right = null): static
     {

@@ -12,7 +12,7 @@ use Concept\Expression\Decorator\DecoratorManagerInterface;
  */
 function createExpression(): ExpressionInterface
 {
-    return new Expression();
+    return new Expression(new DecoratorManager());
 }
 
 function createDecoratorManager(): DecoratorManagerInterface

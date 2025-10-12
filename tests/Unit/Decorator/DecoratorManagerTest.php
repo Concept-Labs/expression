@@ -186,7 +186,7 @@ describe('DecoratorManager Clone and Prototype', function () {
         expect($clone)->not->toBe($manager);
     });
 
-    it('clone is reset', function () {
+    it('clone is not reset', function () {
         $manager = createDecoratorManager();
         $manager->addDecorator(fn($str) => strtoupper($str));
         
@@ -194,10 +194,10 @@ describe('DecoratorManager Clone and Prototype', function () {
         
         $expression = createExpression();
         $expression->push('value');
-        
-        // Clone should be reset and not apply the decorator
+
+        // Clone should not be reset and still apply the decorator
         $result = $clone->applyDecorations($expression);
-        expect($result)->toBe('value');
+        expect($result)->toBe('VALUE');
     });
 
     it('can create prototype', function () {
@@ -206,6 +206,20 @@ describe('DecoratorManager Clone and Prototype', function () {
         
         expect($prototype)->toBeInstanceOf(DecoratorManagerInterface::class);
         expect($prototype)->not->toBe($manager);
+    });
+
+    it('prototype is reset', function () {
+        $manager = createDecoratorManager();
+        $manager->addDecorator(fn($str) => strtoupper($str));
+        
+        $prototype = $manager->prototype();
+        
+        $expression = createExpression();
+        $expression->push('value');
+
+        // Prototype should be reset and not apply any decorators
+        $result = $prototype->applyDecorations($expression);
+        expect($result)->toBe('value');
     });
 });
 
