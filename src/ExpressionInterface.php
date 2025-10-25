@@ -22,6 +22,13 @@ interface ExpressionInterface
     public function __toString(): string;
 
     /**
+     * Alias for push
+     * 
+     * @return static
+     */
+    public function __invoke(...$expressions): static;
+
+    /**
      * Set the expression type
      * 
      * @param string $type

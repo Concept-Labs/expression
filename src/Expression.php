@@ -34,7 +34,7 @@ class Expression implements ExpressionInterface
      * 
      * @return static
      */
-    public function __invoke(...$expressions)
+    public function __invoke(...$expressions): static
     {
         return $this->push(...$expressions);
     }
@@ -49,6 +49,12 @@ class Expression implements ExpressionInterface
         $this->decoratorManager = clone $this->getDecoratorManager();
     }
 
+    /**
+     * Create a prototype of the expression
+     * Means cloning and resetting it
+     * 
+     * @return static
+     */
     public function prototype(): static
     {
         return (clone $this)->reset();
