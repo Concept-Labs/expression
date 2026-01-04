@@ -31,3 +31,6 @@ phpunit.xml.bak
 /tmp/
 *.tmp
 *.bak
+
+# Test files
+examples-test.php
