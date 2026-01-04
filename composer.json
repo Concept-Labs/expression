@@ -14,7 +14,9 @@
     },
     "autoload": {
         "psr-4": {
-            "Concept\\Expression\\": "src/"
+            "Concept\\Expression\\": "src/",
+            "Concept\\Exception\\": "src/Exception/Vendor/",
+            "Concept\\Singularity\\": "src/Exception/Vendor/Singularity/"
         }
     },
     "require-dev": {

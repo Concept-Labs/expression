@@ -7,7 +7,8 @@ Welcome to the extended documentation for the Concept Labs Expression library. T
 1. [Architecture Overview](architecture.md) - Learn about the design and architecture
 2. [API Reference](api-reference.md) - Detailed API documentation
 3. [Examples](examples.md) - Practical examples and use cases
-4. [Contributing](contributing.md) - How to contribute to the project
+4. [**🚀 Advanced Examples**](advanced-examples.md) - **NEW!** Showcase the power of Expression
+5. [Contributing](contributing.md) - How to contribute to the project
 
 ## What is Expression?
 
